@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Required Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("STUDENT")
+  
+  accounts      Account[]
+  sessions      Session[]
+  quizzes       Quiz[]    @relation("CreatorQuizzes")
+  attempts      Attempt[] 
+  
+  classrooms    Classroom[] @relation("TeacherClassrooms")
+  memberships   ClassroomMember[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// System Models
+
+model Department {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  
+  subjects    Subject[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Subject {
+  id           String      @id @default(cuid())
+  name         String
+  code         String      @unique
+  departmentId String
+  department   Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  
+  classrooms   Classroom[]
+  quizzes      Quiz[]
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  teacherId   String
+  subjectId   String?
+  
+  teacher     User     @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  subject     Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  
+  members       ClassroomMember[]
+  materials     Material[]
+  announcements Announcement[]
+  quizzes       Quiz[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ClassroomMember {
+  id          String   @id @default(cuid())
+  classroomId String
+  userId      String
+  joinedAt    DateTime @default(now())
+
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, userId])
+}
+
+model Material {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String
+  classroomId String
+  
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  content     String
+  classroomId String
+  
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isPublished Boolean  @default(false)
+  timeLimit   Int?     // Time limit in seconds
+  startTime   DateTime?
+  endTime     DateTime?
+  difficulty  String   @default("BEGINNER")
+  
+  creatorId   String
+  creator     User     @relation("CreatorQuizzes", fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  classroomId String?
+  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  
+  subjectId   String?
+  subject     Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  
+  questions   Question[]
+  attempts    Attempt[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Question {
+  id        String       @id @default(cuid())
+  quizId    String
+  text      String
+  points    Int          @default(1)
+  order     Int          @default(0) // Order of displaying the question
+  type      String       @default("MCQ")
+  
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+  attemptAnswers AttemptAnswer[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  questionId String
+  text       String
+  isCorrect  Boolean  @default(false)
+  
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model Attempt {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  score     Int      @default(0)
+  startedAt DateTime @default(now())
+  endedAt   DateTime? // Null means still in progress
+  tabSwitches Int    @default(0)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  attemptAnswers AttemptAnswer[]
+}
+
+model AttemptAnswer {
+  id           String   @id @default(cuid())
+  attemptId    String
+  questionId   String
+  answerId     String?  // For MCQ
+  textResponse String?  // For Subjective
+  score        Int?     // Manual grading score
+  
+  attempt      Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}

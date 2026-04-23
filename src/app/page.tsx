@@ -1,63 +1,69 @@
-import Image from "next/image";
+import Link from "next/link";
+import "./page.css"; // We will add bespoke styles for the page
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="home-container">
+      {/* Decorative Background Elements */}
+      <div className="glow glow-1"></div>
+      <div className="glow glow-2"></div>
+
+      {/* Header/Nav */}
+      <header className="home-header">
+        <div className="logo cursor-pointer hover-lift">
+          <span className="logo-icon">⚡</span> Aetheria
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <nav className="home-nav">
+          <Link href="/login" className="nav-link">Log In</Link>
+          <Link href="/signup" className="btn-secondary hover-lift">Sign Up</Link>
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <main className="hero animate-fade-in">
+        <div className="hero-content">
+          <div className="badge">New v2.0 Platform</div>
+          <h1 className="hero-title">
+            Master Any Topic,<br/>
+            <span className="text-gradient">Faster Than Ever.</span>
+          </h1>
+          <p className="hero-subtitle">
+            Create, share, and conquer quizzes with our advanced real-time tracking platform.
+            Experience the next generation of interactive learning.
+          </p>
+          
+          <div className="hero-actions">
+            <Link href="/signup" className="btn-primary hover-lift">
+              Get Started Free
+            </Link>
+            <Link href="/login" className="btn-outline hover-lift">
+              Sign In
+            </Link>
+          </div>
+        </div>
+
+        {/* Hero Visual Display */}
+        <div className="hero-visual glass hover-lift">
+          <div className="visual-header">
+            <span className="dot dot-close"></span>
+            <span className="dot dot-min"></span>
+            <span className="dot dot-max"></span>
+          </div>
+          <div className="visual-body">
+            <div className="mock-question">
+              <h3>What does "DOM" stand for in web development?</h3>
+              <div className="mock-options">
+                <div className="mock-option">Document Oriented Model</div>
+                <div className="mock-option correct">Document Object Model</div>
+                <div className="mock-option">Data Object Mapping</div>
+                <div className="mock-option">Dynamic Ordered Matrix</div>
+              </div>
+            </div>
+            <div className="mock-stats">
+              <div className="stat-pill text-success">Time: 12.5s</div>
+              <div className="stat-pill">Score: 95%</div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
