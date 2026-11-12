@@ -28,6 +28,7 @@ export default async function StudentClassroomDetailsPage({ params }: { params: 
         include: {
           teacher: { select: { name: true, email: true } },
           materials: { orderBy: { createdAt: "desc" } },
+          announcements: { orderBy: { createdAt: "desc" } },
           quizzes: { 
             where: { isPublished: true },
             orderBy: { createdAt: "desc" },
@@ -63,6 +64,28 @@ export default async function StudentClassroomDetailsPage({ params }: { params: 
         {classroom.description && <p className="text-gray-300 text-lg relative z-10 mb-4">{classroom.description}</p>}
         <p className="text-cyan-300 text-sm font-semibold relative z-10">Instructor: {classroom.teacher.name}</p>
       </div>
+
+      {/* Announcements Section */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><span className="text-cyan-400">📢</span> Announcements</h2>
+        
+        {classroom.announcements.length === 0 ? (
+          <div className="glass p-6 text-center rounded-xl border border-white/5">
+            <p className="text-gray-400">No announcements from your instructor yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {classroom.announcements.map((announcement) => (
+              <div key={announcement.id} className="glass p-5 rounded-xl border border-cyan-500/20">
+                <p className="text-white whitespace-pre-wrap">{announcement.content}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  🗓️ {new Date(announcement.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <section>
