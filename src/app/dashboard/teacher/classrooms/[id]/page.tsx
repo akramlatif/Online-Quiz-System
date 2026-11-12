@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import db from "@/lib/prisma";
 import AddMaterialForm from "./AddMaterialForm";
 import ShareClassroomLink from "./ShareClassroomLink";
+import AnnouncementForm from "./AnnouncementForm";
 
 export default async function ClassroomDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,6 +20,7 @@ export default async function ClassroomDetailsPage({ params }: { params: Promise
     include: {
       members: { include: { user: { select: { name: true, email: true } } } },
       materials: { orderBy: { createdAt: "desc" } },
+      announcements: { orderBy: { createdAt: "desc" } },
       quizzes: { orderBy: { createdAt: "desc" } },
     },
   });
@@ -43,6 +45,31 @@ export default async function ClassroomDetailsPage({ params }: { params: Promise
 
       {/* Share Link Section */}
       <ShareClassroomLink classroomId={classroom.id} />
+
+      {/* Announcements Section */}
+      <section className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">📢 Announcements</h2>
+          <AnnouncementForm classroomId={classroom.id} />
+        </div>
+
+        {classroom.announcements.length === 0 ? (
+          <div className="glass p-6 text-center rounded-xl border border-white/5">
+            <p className="text-gray-400">No announcements yet. Post one to keep your students informed!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {classroom.announcements.map((announcement) => (
+              <div key={announcement.id} className="glass p-5 rounded-xl border border-white/5">
+                <p className="text-white whitespace-pre-wrap">{announcement.content}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  🗓️ {new Date(announcement.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
